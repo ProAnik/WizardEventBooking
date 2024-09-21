@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WizardEventController;
+use App\Http\Controllers\WizardEventBookingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,5 +26,9 @@ Route::prefix('event')->as('wizard.event.')->group(function () {
     Route::get('/create', [WizardEventController::class, 'create'])->name('create');
 });
 
+Route::middleware('auth')->prefix('booking')->as('wizard.event.booking.')->group(function () {
+    Route::get('/create', [WizardEventBookingController::class, 'create'])->name('create');
+    Route::post('/', [WizardEventBookingController::class, 'store'])->name('store');
+});
 
 require __DIR__.'/auth.php';

@@ -16,4 +16,6 @@ class WizardEvent extends Model
         'total_seats',
         'available_seats'
     ];
+
+
 }
