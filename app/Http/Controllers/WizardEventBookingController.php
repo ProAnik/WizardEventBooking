@@ -25,7 +25,10 @@ class WizardEventBookingController extends Controller
 
             DB::beginTransaction();
 
-            $wizardEvent = WizardEvent::find($request->wizard_event_id);
+            $wizardEvent = DB::table('wizard_events')
+                ->where('id', $request->wizard_event_id)
+                ->lockForUpdate() // This is equivalent to SELECT ... FOR UPDATE
+                ->first();
 
             if(!$wizardEvent || $wizardEvent->available_seats < $request->seats_booked) {
                 DB::rollBack();
@@ -37,8 +40,10 @@ class WizardEventBookingController extends Controller
                'user_id' => Auth::user()->id,
                'seats_booked' => $request->seats_booked
             ]);
-            $wizardEvent->available_seats = $wizardEvent->available_seats - $request->seats_booked;
-            $wizardEvent->update();
+            $wizardEvent->available_seats -= $request->seats_booked;
+            DB::table('wizard_events')
+                ->where('id', $request->wizard_event_id)
+                ->update(['available_seats' => $wizardEvent->available_seats]);
             DB::commit();
             return back()->with('success', "Successfully booking created!");
 
